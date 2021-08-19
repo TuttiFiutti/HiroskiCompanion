@@ -26,11 +26,9 @@ def _int_to_enum(unit):
 while doit:
     time.sleep(1)
     try:
-        now = time.time()
-        for i in range(100000):
-            unit_types = hota_memory_reader.read_selected_hero().name
-        print(time.time()-now)
+        name = hota_memory_reader.read_selected_hero().name
+
     except Exception as e:
         print(e)
-    print(unit_types)
+    print(name)
     # print([_int_to_enum(unit) for unit in unit_types])
