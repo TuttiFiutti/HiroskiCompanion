@@ -1,8 +1,10 @@
 from enum import Enum
+from typing import List, Tuple
 
-from pydantic import BaseModel
+from pydantic import BaseModel, PositiveInt, NonNegativeInt
 
 UINT32_MAX = 4294967295
+
 
 class UnitType(Enum):
     EMPTY = UINT32_MAX
@@ -169,3 +171,12 @@ class UnitType(Enum):
     NIX_WARRIOR = 164
     SEA_SERPENET = 165
     HASPID = 166
+
+
+class Unit(BaseModel):
+    type: UnitType
+    count: NonNegativeInt
+
+
+class ArmyModel(BaseModel):
+    __root__: List[Unit]

@@ -1,5 +1,6 @@
+import ctypes
 from ctypes import byref, memmove
-from typing import Tuple
+from typing import Tuple, Optional
 
 from pymem import Pymem
 from pymem.pattern import pattern_scan_module
@@ -7,6 +8,8 @@ from pymem.process import module_from_name
 
 from memory.structures.hirek import Hirek
 from util.ctypes_util import cheat_engine_scan_string_to_regex
+from ctypes import byref
+from ctypes.wintypes import DWORD
 
 HOTA_FULL_PROC_NAME = "h3hota HD.exe"
 POINTER_CALCULATION_STRING = "A1 ?? ?? ?? ?? 8B 48 ?? 83 F9 ?? 0F 84 ?? ?? 00 00 8B C1" \
@@ -26,19 +29,27 @@ class HirekNotSelectedException(HotaException):
 
 
 class HotaMemoryReader:
-    def __init__(self, hota: Pymem):
-        self.hota = hota
-        self.hota_module = module_from_name(hota.process_handle, HOTA_FULL_PROC_NAME)
+    def __init__(self, hota: Optional[Pymem] = None):
+        self.hota = hota or Pymem(HOTA_FULL_PROC_NAME)
+        self.hota_module = module_from_name(self.hota.process_handle, HOTA_FULL_PROC_NAME)
         self.modules_base_dict = {module.name: module.lpBaseOfDll for module in self.hota.list_modules()}
         self.pointer_scan_regex = cheat_engine_scan_string_to_regex(POINTER_CALCULATION_STRING)
 
         what = cheat_engine_scan_string_to_regex(POINTER_CALCULATION_STRING)
         address = pattern_scan_module(self.hota.process_handle, self.hota_module, what)
 
-        b = [n for n in hota.read_bytes(address + len(what) - 5, 4)]
+        b = [n for n in self.hota.read_bytes(address + len(what) - 5, 4)]
 
         self.magic_hero_pointer_value = (255 - b[-1]) * 256 ** 3 + (255 - b[-2]) * 256 ** 2 + (255 - b[-3]) * 256 + (
                 256 - b[-4])
+
+    def is_connected_to_process(self):
+        if self.hota.process_handle is None:
+            return False
+
+        exit_code = DWORD()
+        ctypes.windll.kernel32.GetExitCodeProcess(self.hota.process_handle, byref(exit_code))
+        return exit_code.value == 259
 
     def _string_to_address(self, address):
         module_name, offset = address.split("+")
@@ -58,7 +69,7 @@ class HotaMemoryReader:
 
     def read_hero_by_number(self, hero_number):
         r = self.magic_hero_pointer_value
-        if hero_number == 255:
+        if hero_number == 4294967295:
             raise HirekNotSelectedException()
         else:
             eax = hero_number
@@ -69,7 +80,7 @@ class HotaMemoryReader:
             ebx = ecx + eax * 2 - r
             in_town = self.hota.read_uint(ebx + 0x105)
 
-            if in_town & 0x00400000:
+            if in_town & 0x00400000:  # This is probably wrong?
                 raise HirekInTownException()
 
             s = self.hota.read_bytes(ebx, 1500)

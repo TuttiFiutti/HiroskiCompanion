@@ -3,6 +3,7 @@ from ctypes import *
 
 Hirek = structure_from_dict({"x_pos": (0x00, c_uint16),
                              "y_pos": (0x02, c_uint16),
+                             "owner": (0x22, c_uint8),
                              "name": (0x23, c_char * 16),
                              "unit_counts": (173, c_uint32 * 7),
                              "unit_types": (145, c_uint32 * 7),
