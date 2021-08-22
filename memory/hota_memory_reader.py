@@ -7,6 +7,8 @@ from pymem.pattern import pattern_scan_module
 from pymem.process import module_from_name
 
 from memory.structures.hirek import Hirek
+from memory.structures.player import Player
+from models.player_model import PlayerModel
 from util.ctypes_util import cheat_engine_scan_string_to_regex
 from ctypes import byref
 from ctypes.wintypes import DWORD
@@ -67,7 +69,7 @@ class HotaMemoryReader:
 
         return self.read_hero_by_number(ecx)
 
-    def read_hero_by_number(self, hero_number):
+    def read_hero_by_number(self, hero_number) -> Hirek:
         r = self.magic_hero_pointer_value
         if hero_number == 4294967295:
             raise HirekNotSelectedException()
@@ -87,6 +89,21 @@ class HotaMemoryReader:
             hirek = Hirek()
             memmove(byref(hirek), s, 1500)
             return hirek
+
+    def read_selected_player_structure(self) -> Player:
+        eax = self.hota.read_uint(self.hota_module.lpBaseOfDll + 0x2977DC)
+        return self.read_player_structure_by_number(eax)
+
+    def read_player_structure_by_number(self, player_number) -> Player:
+        magic_player_offset_value = 0x20AD0
+        even_more_magic_offset = 136
+        edx = self.hota.read_uint(self.hota_module.lpBaseOfDll + 0x299538)
+        ebx = edx + magic_player_offset_value
+        shift = player_number * 360
+        s = self.hota.read_bytes(edx + shift + magic_player_offset_value + even_more_magic_offset, 0xE3)
+        p = Player()
+        memmove(byref(p), s, 0xE3)
+        return p
 
     def read_turn_number(self) -> Tuple[int, int, int]:
         day_address = self._read_pointer(self.modules_base_dict[HOTA_FULL_PROC_NAME] + 0x299538, (0x0001F63E,))
