@@ -2,7 +2,9 @@ import logging
 import time
 from logging import INFO
 
+from fastapi import FastAPI
 from flask import Flask
+from injector import Injector
 from pymem.process import module_from_name
 from pymem.pattern import pattern_scan_module
 
@@ -18,11 +20,9 @@ from ctypes import *
 
 from web.game_state_web_app import GameStateWebApp
 
-game_state_web_app = GameStateWebApp()
-app = Flask(__name__)
+injector = Injector()
+game_state_web_app = injector.get(GameStateWebApp)
+app = FastAPI()
 FORMAT = '%(asctime)-15s %(message)s'
-app.register_blueprint(game_state_web_app.blueprint, url_prefix='/gs')
+app.include_router(game_state_web_app.router)
 logging.basicConfig(format=FORMAT, level=INFO)
-
-if __name__ == "__main__":
-    app.run(host='127.0.0.1', port=8090)
