@@ -23,12 +23,12 @@ class HirekModel(BaseModel):
             army.append(UnitModel(type=UnitType(unit_type), count=unit_count))
 
         return HirekModel(
-            name=hirek.name.decode('ascii'),
+            name=hirek.name.decode("ascii"),
             xp=hirek.xp,
             attack=hirek.attack,
             defense=hirek.defense,
             power=hirek.power,
             knowledge=hirek.knowledge,
             owner=hirek.owner,
-            army=ArmyModel(__root__=army)
+            army=ArmyModel(__root__=army),
         )

@@ -2,20 +2,23 @@ import json
 
 import requests
 
-LIST_OF_ALL_CREATURES_URL = "https://heroes.thelazy.net/index.php/List_of_creatures_(HotA)"
+LIST_OF_ALL_CREATURES_URL = (
+    "https://heroes.thelazy.net/index.php/List_of_creatures_(HotA)"
+)
 html = requests.get(LIST_OF_ALL_CREATURES_URL)
 
 from bs4 import BeautifulSoup
 
-soup = BeautifulSoup(html.text, 'html.parser')
-table = soup.find('table')
+soup = BeautifulSoup(html.text, "html.parser")
+table = soup.find("table")
 
 
 def scrap_name(td):
     img = td.find("img")
-    return img.get("alt"), {
-        "creature_image": f'https://heroes.thelazy.net/{img.get("src")}'
-    }
+    return (
+        img.get("alt"),
+        {"creature_image": f'https://heroes.thelazy.net/{img.get("src")}'},
+    )
 
 
 def scrap_town(td):
@@ -23,7 +26,7 @@ def scrap_town(td):
     span = td.find("span")
     return {
         "town": span.get("title"),
-        "town_image": f'https://heroes.thelazy.net/{img.get("src")}'
+        "town_image": f'https://heroes.thelazy.net/{img.get("src")}',
     }
 
 
@@ -50,9 +53,9 @@ def scrap_extra(td):
 
 ans = {}
 try:
-    for tr in table.find_all('tr'):
+    for tr in table.find_all("tr"):
         name = None
-        for i, td in enumerate(tr.find_all('td')):
+        for i, td in enumerate(tr.find_all("td")):
             if i == 0:
                 name, val = scrap_name(td)
                 ans[name] = {}

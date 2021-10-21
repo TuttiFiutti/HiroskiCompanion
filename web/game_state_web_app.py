@@ -11,20 +11,22 @@ from services.game_state_service import GameStateService
 from fastapi.routing import APIRouter
 
 
-
 class GameStateWebApp:
     @inject
     def __init__(self, game_state_service: GameStateService):
         self.game_state_service = game_state_service
-        router = APIRouter(prefix='/gs')
+        router = APIRouter(prefix="/gs")
         self.router = router
 
-        @router.get('/', response_model=Optional[GameStateModel])
+        @router.get("/", response_model=Optional[GameStateModel])
         def _get_game_state():
             if self.game_state_service.last_known_state:
                 return self.game_state_service.last_known_state
-            raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="No known state available yet.")
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="No known state available yet.",
+            )
 
-        @router.get('/events', response_model=GameEvents)
+        @router.get("/events", response_model=GameEvents)
         def _get_events():
             return GameEvents.parse_obj(self.game_state_service.events)

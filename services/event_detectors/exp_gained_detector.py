@@ -24,19 +24,23 @@ class LevelGainedPayload(BaseModel):
 
 
 class ExpGainedDetector(GameEventDetector):
-    def detect(self, previous_state: GameStateModel, current_state: GameStateModel) -> \
-            Optional[Union[GameEvent, List[GameEvent]]]:
+    def detect(
+        self, previous_state: GameStateModel, current_state: GameStateModel
+    ) -> Optional[Union[GameEvent, List[GameEvent]]]:
         events = []
 
         number_of_heroes_that_lost_exp = 0
 
-        for i, (hero_previously, hero_currently) in enumerate(zip(previous_state.heroes, current_state.heroes)):
+        for i, (hero_previously, hero_currently) in enumerate(
+            zip(previous_state.heroes, current_state.heroes)
+        ):
             xp_diff = hero_currently.xp - hero_previously.xp
 
             if xp_diff > 0:
                 xp_gained_payload = ExpGainedPayload(exp_gained=xp_diff, which_hero=i)
-                xp_gained_event = game_event(type_=GameEventType.HERO_GAINED_XP,
-                                             payload=xp_gained_payload)
+                xp_gained_event = game_event(
+                    type_=GameEventType.HERO_GAINED_XP, payload=xp_gained_payload
+                )
 
                 events.append(xp_gained_event)
 

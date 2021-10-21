@@ -8,15 +8,13 @@ html = requests.get(LIST_OF_ALL_HEROES_URL)
 
 from bs4 import BeautifulSoup
 
-soup = BeautifulSoup(html.text, 'html.parser')
-table = soup.find('table')
+soup = BeautifulSoup(html.text, "html.parser")
+table = soup.find("table")
 
 
 def scrap_name(td):
     img = td.find("img")
-    return img.get("alt"), {
-        "hero_image": f'https://heroes.thelazy.net{img.get("src")}'
-    }
+    return img.get("alt"), {"hero_image": f'https://heroes.thelazy.net{img.get("src")}'}
 
 
 def scrap_class(td):
@@ -28,7 +26,7 @@ def scrap_specialty(td):
     a, img = td.find("a"), td.find("img")
     return {
         "specialty_img": f'https://heroes.thelazy.net{img.get("src")}',
-        "specialty": a.get("title").strip()
+        "specialty": a.get("title").strip(),
     }
 
 
@@ -40,7 +38,7 @@ def scrap_skill(td, i):
 
     return {
         f"secondary_skill_img_{i}": f'https://heroes.thelazy.net{img.get("src")}',
-        f"secondary_skill_{i}": a.get("title").strip()
+        f"secondary_skill_{i}": a.get("title").strip(),
     }
 
 
@@ -49,7 +47,7 @@ def scrap_hero(td):
     span = td.find("span")
     return {
         "hero_name": span.get("title"),
-        "hero_image": f'https://heroes.thelazy.net{img.get("src")}'
+        "hero_image": f'https://heroes.thelazy.net{img.get("src")}',
     }
 
 
@@ -78,7 +76,7 @@ val = None
 ans = {}
 print(table)
 try:
-    for i, td in enumerate(table.find_all('td')):
+    for i, td in enumerate(table.find_all("td")):
         if i % 10 == 0:
             name, val = scrap_name(td)
             ans[name] = {}

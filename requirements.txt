@@ -1,6 +1,6 @@
 pymem==1.8.5
 pydantic==1.8.2
-Flask==2.0.1
+fastapi==0.70.0
 pydantic==1.8.2
-uvicorn==0.15.0
 injector==0.18.4
+pre-commit==2.15.0

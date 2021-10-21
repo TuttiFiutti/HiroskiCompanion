@@ -14,9 +14,7 @@ from services.game_events.base_game_event import GameEvent
 
 log = logging.getLogger(__name__)
 
-EVENT_DETECTOR_CLASSES = [
-    ExpGainedDetector
-]
+EVENT_DETECTOR_CLASSES = [ExpGainedDetector]
 
 
 class GameStateService:
@@ -27,7 +25,9 @@ class GameStateService:
         self.thread = Thread(target=self._run)
         self.thread.start()
         self.events = []
-        self.event_detectors = [clazz() for clazz in EVENT_DETECTOR_CLASSES]  # type: List[GameEventDetector]
+        self.event_detectors = [
+            clazz() for clazz in EVENT_DETECTOR_CLASSES
+        ]  # type: List[GameEventDetector]
 
     def stop(self):
         self._stop = True
@@ -51,9 +51,15 @@ class GameStateService:
                 if isinstance(event_or_events, GameEvent):
                     self.events.append(event_or_events)
                 elif isinstance(event_or_events, list):
-                    self.events += [event for event in event_or_events if isinstance(event, GameEvent)]
+                    self.events += [
+                        event
+                        for event in event_or_events
+                        if isinstance(event, GameEvent)
+                    ]
                 else:
-                    log.warning(f"Got unexpected type returned from {detector=}, {type(event_or_events)=}")
+                    log.warning(
+                        f"Got unexpected type returned from {detector=}, {type(event_or_events)=}"
+                    )
 
     def _run(self):
         while not self._stop:

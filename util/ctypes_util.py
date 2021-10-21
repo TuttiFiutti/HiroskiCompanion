@@ -3,7 +3,9 @@ from ctypes import c_uint8, sizeof, Structure
 from typing import Type
 
 
-def structure_from_dict(fields: typing.Dict[str, typing.Tuple[int, Type]], min_size=None) -> Type:
+def structure_from_dict(
+    fields: typing.Dict[str, typing.Tuple[int, Type]], min_size=None
+) -> Type:
     _fields = []
 
     fields_list = list(fields.items())
@@ -40,8 +42,8 @@ def cheat_engine_scan_string_to_regex(ce_string: str):
     ce_string = ce_string.replace(" ", "")
     ret = b""
     for i in range(len(ce_string) // 2):
-        two_chars = ce_string[2 * i: 2 * (i + 1)]
-        if '?' in two_chars:
+        two_chars = ce_string[2 * i : 2 * (i + 1)]
+        if "?" in two_chars:
             ret += b"."
         else:
             ret += bytes.fromhex(two_chars)

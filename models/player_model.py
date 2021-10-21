@@ -25,5 +25,5 @@ class PlayerModel(BaseModel):
             mercury=player.mercury,
             sulfur=player.sulfur,
             gold=player.gold,
-            name=player.name.decode('ascii')
+            name=player.name.decode("ascii"),
         )

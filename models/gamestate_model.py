@@ -22,14 +22,16 @@ class GameStateModel(BaseModel):
     def from_memory_reader(reader: HotaMemoryReader):
         month, week, day = reader.read_turn_number()
 
-        players = [PlayerModel.from_structure(reader.read_player_structure_by_number(i)) for i in range(8)]
+        players = [
+            PlayerModel.from_structure(reader.read_player_structure_by_number(i))
+            for i in range(8)
+        ]
 
-        heroes = [HirekModel.from_structure(reader.read_hero_by_number(i)) for i in range(NUMBER_OF_HEROES)]
+        heroes = [
+            HirekModel.from_structure(reader.read_hero_by_number(i))
+            for i in range(NUMBER_OF_HEROES)
+        ]
 
         return GameStateModel(
-            day=day,
-            week=week,
-            month=month,
-            players=players,
-            heroes=heroes
+            day=day, week=week, month=month, players=players, heroes=heroes
         )
