@@ -173,10 +173,10 @@ class UnitType(Enum):
     HASPID = 166
 
 
-class Unit(BaseModel):
+class UnitModel(BaseModel):
     type: UnitType
     count: NonNegativeInt
 
 
 class ArmyModel(BaseModel):
-    __root__: List[Unit]
+    __root__: List[UnitModel]

@@ -1,32 +1,30 @@
 import json
+from typing import Optional
+
+from fastapi import status, HTTPException
+from fastapi.openapi.models import Response
+from injector import inject
 
 from models.gamestate_model import GameStateModel
 from services.game_events.base_game_event import GameEvents
 from services.game_state_service import GameStateService
-from flask import Blueprint
+from fastapi.routing import APIRouter
+
 
 
 class GameStateWebApp:
-    def __init__(self):
-        self.game_state_service = GameStateService()  # probably move to DE
-        gamestate_bp = Blueprint('gs', __name__)
-        self.blueprint = gamestate_bp
+    @inject
+    def __init__(self, game_state_service: GameStateService):
+        self.game_state_service = game_state_service
+        router = APIRouter(prefix='/gs')
+        self.router = router
 
-        @gamestate_bp.get('/')
+        @router.get('/', response_model=Optional[GameStateModel])
         def _get_game_state():
             if self.game_state_service.last_known_state:
-                return self.game_state_service.last_known_state.json()
-            else:
-                return "", 503
+                return self.game_state_service.last_known_state
+            raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="No known state available yet.")
 
-        @gamestate_bp.get('/schema')
-        def _get_game_state_model_schema():
-            return GameStateModel.schema_json()
-
-        @gamestate_bp.get('/events')
+        @router.get('/events', response_model=GameEvents)
         def _get_events():
-            return GameEvents.parse_obj(self.game_state_service.events).json()
-
-        @gamestate_bp.get('/events/schema')
-        def _get_events_schema():
-            return GameEvents.schema_json()
+            return GameEvents.parse_obj(self.game_state_service.events)

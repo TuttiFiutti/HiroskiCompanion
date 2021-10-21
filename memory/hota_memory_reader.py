@@ -1,8 +1,10 @@
 import ctypes
+import logging
 from ctypes import byref, memmove
 from typing import Tuple, Optional
 
 from pymem import Pymem
+from pymem.exception import PymemError
 from pymem.pattern import pattern_scan_module
 from pymem.process import module_from_name
 
@@ -13,10 +15,14 @@ from util.ctypes_util import cheat_engine_scan_string_to_regex
 from ctypes import byref
 from ctypes.wintypes import DWORD
 
-HOTA_FULL_PROC_NAME = "h3hota HD.exe"
+HOTA_FULL_PROC_NAME = "h3hota.exe"
+HOTA_FULL_PROC_NAME_LONG = "h3hota HD.exe"
+
 POINTER_CALCULATION_STRING = "A1 ?? ?? ?? ?? 8B 48 ?? 83 F9 ?? 0F 84 ?? ?? 00 00 8B C1" \
                              " C1 E0 ?? 03 C1 8B 0D ?? ?? ?? ?? 8D 04 C0 8D 9C 41 ?? ?? ?? ?? 85"
 
+
+log = logging.getLogger(__name__)
 
 class HotaException(Exception):
     pass
@@ -32,7 +38,7 @@ class HirekNotSelectedException(HotaException):
 
 class HotaMemoryReader:
     def __init__(self, hota: Optional[Pymem] = None):
-        self.hota = hota or Pymem(HOTA_FULL_PROC_NAME)
+        self.hota = hota or self._create_pymem_for_hota()
         self.hota_module = module_from_name(self.hota.process_handle, HOTA_FULL_PROC_NAME)
         self.modules_base_dict = {module.name: module.lpBaseOfDll for module in self.hota.list_modules()}
         self.pointer_scan_regex = cheat_engine_scan_string_to_regex(POINTER_CALCULATION_STRING)
@@ -44,6 +50,15 @@ class HotaMemoryReader:
 
         self.magic_hero_pointer_value = (255 - b[-1]) * 256 ** 3 + (255 - b[-2]) * 256 ** 2 + (255 - b[-3]) * 256 + (
                 256 - b[-4])
+
+    def _create_pymem_for_hota(self):
+        try:
+            return Pymem(HOTA_FULL_PROC_NAME)
+        except PymemError as e:
+            log.info(f"Couldn't open Pymem for {HOTA_FULL_PROC_NAME}")
+
+        return Pymem(HOTA_FULL_PROC_NAME_LONG)
+
 
     def is_connected_to_process(self):
         if self.hota.process_handle is None:

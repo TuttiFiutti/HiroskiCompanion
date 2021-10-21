@@ -1,7 +1,7 @@
 from pydantic import BaseModel, conint, NonNegativeInt
 
 from memory.structures.hirek import Hirek
-from models.army_model import ArmyModel, Unit, UnitType
+from models.army_model import ArmyModel, UnitModel, UnitType
 
 
 class HirekModel(BaseModel):
@@ -20,7 +20,7 @@ class HirekModel(BaseModel):
         for i in range(7):
             unit_type = hirek.unit_types[i]
             unit_count = hirek.unit_counts[i]
-            army.append(Unit(type=UnitType(unit_type), count=unit_count))
+            army.append(UnitModel(type=UnitType(unit_type), count=unit_count))
 
         return HirekModel(
             name=hirek.name.decode('ascii'),
